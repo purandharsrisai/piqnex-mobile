@@ -1,0 +1,16 @@
+# Project policy: every commit automatically gets a new version number
+# (see package.json's "version" field, and the small "v..." badge in the
+# site footer). Nobody can commit - and therefore nobody can push - without
+# the version changing. See scripts/bump-version.js for details.
+
+# Don't bump during a merge/rebase commit, or when nothing is actually
+# staged (e.g. an empty commit).
+if git rev-parse -q --verify MERGE_HEAD >/dev/null 2>&1; then
+  exit 0
+fi
+if [ -z "$(git diff --cached --name-only)" ]; then
+  exit 0
+fi
+
+node scripts/bump-version.js || exit 1
+git add package.json package-lock.json
